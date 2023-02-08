@@ -1,11 +1,48 @@
-const ItemListContainer = (props) => {
-    const { greeting } = props;
+import { useEffect, useState } from "react"
+import { useParams } from "react-router-dom"
+import ItemList from "./ItemList"
+
+const ItemListContainer = () => {
+
+    const [load, setLoad] = useState(false)
+    const [productos,setProductos] = useState([])
+
+    const props = useParams()
+    const categoria = props.categoria
+    console.log(props)
+
+
+    useEffect(() => {
+
+        setLoad(false)
+        const pedido = fetch("https://fakestoreapi.com/products/")
+        
+        pedido
+            .then((respuesta) => {
+                const productos = respuesta.json()
+                return productos
+
+            })
+            .then((productos) => {
+                if (props.categoria == null) {
+                    setProductos(productos)
+                } else {
+                    setProductos(productos.filter(p => p.category === props.categoria))
+                }
+            setLoad(true)
+
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+
+    }, [props.categoria])
+
     return (
-        <div class="row justify-content-center p-5">
-            <div class="card shadow carta-contenedor bg-body rounded text-center ">
-                <p class="texto-card">{greeting}</p>
-            </div>
-        </div>
+        <>
+            {load ? null : <div className="text-center text-warning">Cargando</div>}
+            <ItemList productos={productos}/>
+        </>
     )
 }
 
